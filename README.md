@@ -28,6 +28,8 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 1962 — Mariner 1 | *The Hyphen That Cost $90 Million*
+<img width="515" height="621" alt="image" src="https://github.com/user-attachments/assets/e038df1e-fe46-4cfe-9f5b-92d03f878126" />
+
 
 | Detail | Info |
 |---|---|
@@ -44,6 +46,8 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 1983 — Soviet Nuclear False Alarm | *The Bug That Almost Started World War III*
+<img width="639" height="304" alt="image" src="https://github.com/user-attachments/assets/d075a3fe-ea05-4890-a8c0-efc3047b35b2" />
+
 
 | Detail | Info |
 |---|---|
@@ -60,6 +64,8 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 1985–1987 — Therac-25 | *When a Race Condition Killed Patients*
+<img width="574" height="344" alt="image" src="https://github.com/user-attachments/assets/f2159156-f69c-4611-be22-fd72ba61b2ac" />
+
 
 | Detail | Info |
 |---|---|
@@ -92,6 +98,8 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 1994 — Intel Pentium FDIV Bug | *$475 Million for a Math Error*
+<img width="806" height="732" alt="image" src="https://github.com/user-attachments/assets/60d5f9d0-1632-4e87-8574-5f714f156c38" />
+
 
 | Detail | Info |
 |---|---|
@@ -108,6 +116,8 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 1996 — Ariane 5 Rocket Explosion | *$370 Million in 37 Seconds*
+<img width="529" height="346" alt="image" src="https://github.com/user-attachments/assets/e846d472-8017-4aa5-994d-4e08b29f4dd6" />
+
 
 | Detail | Info |
 |---|---|
@@ -124,6 +134,8 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 1999 — Mars Climate Orbiter | *Lost in Space for a Unit Mismatch*
+<img width="460" height="316" alt="image" src="https://github.com/user-attachments/assets/30fbcdb7-e08f-4632-aa4a-1bbb3530ffaa" />
+
 
 | Detail | Info |
 |---|---|
@@ -140,6 +152,8 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 1999–2000 — The Y2K Bug | *$300–600 Billion to Fix a Two-Digit Shortcut*
+<img width="366" height="411" alt="image" src="https://github.com/user-attachments/assets/ec71241c-7b90-4c68-931d-4e86179be880" />
+
 
 | Detail | Info |
 |---|---|
@@ -156,6 +170,8 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 2003 — Northeast Blackout | *55 Million People in the Dark*
+<img width="617" height="611" alt="image" src="https://github.com/user-attachments/assets/17343ea1-ce48-43d2-bcf3-e48c5cfb81fe" />
+
 
 | Detail | Info |
 |---|---|
@@ -172,6 +188,7 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 2012 — Knight Capital Group | *$440 Million in 45 Minutes*
+<img width="853" height="462" alt="image" src="https://github.com/user-attachments/assets/b007c92b-adb2-47cd-8823-833301480ca4" />
 
 | Detail | Info |
 |---|---|
@@ -188,6 +205,8 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 2014 — Mt. Gox Bitcoin Exchange Collapse | *$460 Million in Lost Bitcoin*
+<img width="503" height="340" alt="image" src="https://github.com/user-attachments/assets/6c4dece8-7391-40ac-b739-9d9c3f3700b5" />
+
 
 | Detail | Info |
 |---|---|
@@ -204,6 +223,7 @@ Studying these failures is not about assigning blame. It is about understanding 
 ---
 
 ### 2019 — Boeing 737 MAX MCAS Crashes | *346 Lives Lost*
+<img width="644" height="311" alt="image" src="https://github.com/user-attachments/assets/829c85ad-be88-4363-a3fd-0b7bbe1bd799" />
 
 | Detail | Info |
 |---|---|
