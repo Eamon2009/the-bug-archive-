@@ -1,0 +1,92 @@
+[
+       {
+              "id": "mariner1_1962",
+              "title": "Mariner 1 — The Missing Hyphen",
+              "year": 1962,
+              "category": "Transcription / Formula Error",
+              "financial_loss": "$90 million",
+              "lives_lost": 0,
+              "language": "FORTRAN (pseudo)",
+              "file": "mariner1_hyphen.py"
+       },
+       {
+              "id": "therac25_1985",
+              "title": "Therac-25 — Race Condition Kills Patients",
+              "year": 1985,
+              "category": "Race Condition / Concurrency",
+              "financial_loss": "Immeasurable",
+              "lives_lost": 6,
+              "language": "Python",
+              "file": "therac25_race_condition.py"
+       },
+       {
+              "id": "ariane5_1996",
+              "title": "Ariane 5 — Integer Overflow",
+              "year": 1996,
+              "category": "Integer Overflow / Type Conversion",
+              "financial_loss": "$370 million",
+              "lives_lost": 0,
+              "language": "Python",
+              "file": "ariane5_overflow.py"
+       },
+       {
+              "id": "mars_orbiter_1999",
+              "title": "Mars Climate Orbiter — Unit Mismatch",
+              "year": 1999,
+              "category": "Unit Mismatch / Interface Contract",
+              "financial_loss": "$125 million",
+              "lives_lost": 0,
+              "language": "Python",
+              "file": "mars_orbiter_units.py"
+       },
+       {
+              "id": "y2k_2000",
+              "title": "Y2K — Two-Digit Year Assumption",
+              "year": 2000,
+              "category": "Assumption / Date Handling",
+              "financial_loss": "$300–600 billion",
+              "lives_lost": 0,
+              "language": "Python",
+              "file": "y2k_date_bug.py"
+       },
+       {
+              "id": "intel_pentium_1994",
+              "title": "Intel Pentium FDIV — Floating Point Division",
+              "year": 1994,
+              "category": "Floating Point / Lookup Table",
+              "financial_loss": "$475 million",
+              "lives_lost": 0,
+              "language": "Python",
+              "file": "pentium_fdiv.py"
+       },
+       {
+              "id": "knight_capital_2012",
+              "title": "Knight Capital — Dead Code Triggered",
+              "year": 2012,
+              "category": "Dead Code / Deployment Error",
+              "financial_loss": "$440 million",
+              "lives_lost": 0,
+              "language": "Python",
+              "file": "knight_capital_deadcode.py"
+       },
+       {
+              "id": "northeast_blackout_2003",
+              "title": "Northeast Blackout — Silent Alarm Failure",
+              "year": 2003,
+              "category": "Silent Failure / Race Condition",
+              "financial_loss": "$6 billion",
+              "lives_lost": 100,
+              "language": "Python",
+              "file": "northeast_blackout_silent_fail.py"
+       },
+       {
+              "id": "boeing_737_max_2019",
+              "title": "Boeing 737 MAX — Single Point of Failure",
+              "year": 2019,
+              "category": "Single Point of Failure / No Redundancy",
+              "financial_loss": "$20 billion+",
+              "lives_lost": 346,
+              "language": "Python",
+              "file": "boeing_mcas_spof.py"
+       }
+]
