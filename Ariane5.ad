@@ -1,0 +1,216 @@
+-- =============================================================================
+-- BUG ARCHIVE — Entry #3
+-- Incident  : Ariane 5 — Flight 501
+-- Date      : June 4, 1996
+-- Language  : Ada 83 (used for ESA flight software — safety-critical standard)
+-- Root Cause: Conversion of 64-bit float (BH — horizontal bias) to 16-bit
+--             signed integer. Overflow protection existed for the VERTICAL
+--             component (BV) but was deliberately omitted for the HORIZONTAL
+--             component (BH) based on Ariane 4 trajectory assumptions.
+--             On Ariane 5's steeper trajectory, BH exceeded 32,767.
+--             The unhandled NUMERIC_ERROR exception halted both SRI computers.
+-- Loss      : ~$370 million | Lives Lost: 0 (unmanned)
+-- =============================================================================
+--
+-- NOTE: The code below is reconstructed from the official ESA Inquiry Board
+-- report (Lions et al., 1996) and the analysis by Jezequel & Meyer.
+-- The variable names (BH, BV, T_ENTIER_16S, UC_16S_EN_16NS) match those
+-- documented in the report. This is as close to the real source as public
+-- records allow.
+--
+-- Ada 83 was chosen by ESA precisely because it raises exceptions on overflow
+-- rather than silently wrapping. The team deliberately suppressed that
+-- protection for BH using pragma SUPPRESS(NUMERIC_ERROR, ...) to meet an
+-- 80% CPU load target. That suppression is what destroyed the rocket.
+--
+-- =============================================================================
+
+with Ada.Text_IO;     use Ada.Text_IO;
+with Ada.Float_Text_IO;
+
+-- Type declarations matching the SRI (Inertial Reference System) types
+package SRI_Types is
+
+   -- 16-bit signed integer range (matches hardware register)
+   type Integer_16 is range -32768 .. 32767;
+
+   -- 64-bit float for internal inertial calculations
+   type Float_64   is digits 15;
+
+   -- Conversion: float-64 to integer-16 (the dangerous operation)
+   -- T_ENTIER_16S = "truncate to 16-bit signed" (French: entier = integer)
+   function T_ENTIER_16S (X : Float_64) return Integer_16;
+
+   -- Reinterpret 16-bit signed as 16-bit unsigned (hardware register write)
+   -- UC_16S_EN_16NS = unsigned-cast, 16 signed to 16 non-signed
+   function UC_16S_EN_16NS (X : Integer_16) return Integer_16;
+
+end SRI_Types;
+
+package body SRI_Types is
+
+   function T_ENTIER_16S (X : Float_64) return Integer_16 is
+   begin
+      -- Ada will raise NUMERIC_ERROR here if X > 32767.0 or X < -32768.0
+      -- This is the conversion that destroyed Ariane 501.
+      return Integer_16 (X);
+   end T_ENTIER_16S;
+
+   function UC_16S_EN_16NS (X : Integer_16) return Integer_16 is
+   begin
+      return X;   -- simplified; real version re-interprets bit pattern
+   end UC_16S_EN_16NS;
+
+end SRI_Types;
+
+
+-- =============================================================================
+-- THE ACTUAL BUGGY ALIGNMENT CODE (reconstructed from inquiry report)
+-- =============================================================================
+
+procedure Inertial_Alignment_Buggy is
+
+   use SRI_Types;
+
+   -- Sensor-derived values (computed from gyroscopes + accelerometers)
+   G_M_INFO_DERIVE_BH : Float_64;   -- horizontal bias (raw float)
+   G_M_INFO_DERIVE_BV : Float_64;   -- vertical bias   (raw float)
+
+   -- Scale factor constant (LSB = Least Significant Bit scaling)
+   C_M_LSB_BH : constant Float_64 := 0.0625;
+
+   -- Intermediate 32-bit value used for BV overflow check
+   L_M_BV_32 : Float_64;
+
+   -- Output registers (16-bit hardware values)
+   P_M_DERIVE_BH : Integer_16;
+   P_M_DERIVE_BV : Integer_16;
+
+begin
+
+   -- Simulate Ariane 5 flight conditions (steeper trajectory = higher BH)
+   G_M_INFO_DERIVE_BH := 37_000.0;   -- ARIANE 5: exceeds int16 max (32767)
+   G_M_INFO_DERIVE_BV :=  9_000.0;   -- vertical: safely within range
+
+   -- -------------------------------------------------------------------------
+   --   VERTICAL component BV — overflow IS protected (correctly)
+   --     (as seen in the inquiry report Ada code)
+   -- -------------------------------------------------------------------------
+   L_M_BV_32 := (1.0 / C_M_LSB_BH) * G_M_INFO_DERIVE_BV;
+
+   if L_M_BV_32 > 32767.0 then
+      P_M_DERIVE_BV := 16#7FFF#;        -- clamp to max
+   elsif L_M_BV_32 < -32768.0 then
+      P_M_DERIVE_BV := -16#8000#;       -- clamp to min
+   else
+      P_M_DERIVE_BV := UC_16S_EN_16NS (T_ENTIER_16S (L_M_BV_32));
+   end if;
+
+   -- -------------------------------------------------------------------------
+   --  HORIZONTAL component BH — overflow NOT protected
+   --     This is the exact code pattern from the inquiry report.
+   --     For Ariane 4, BH never exceeded 32767. For Ariane 5, it did.
+   --     pragma SUPPRESS(NUMERIC_ERROR, ON => P_M_DERIVE_BH) was in effect,
+   --     meaning Ada's normal exception was disabled here.
+   -- -------------------------------------------------------------------------
+
+   --  pragma Suppress (Numeric_Error);  -- this was active in the real code
+
+   P_M_DERIVE_BH :=                              -- ← RAISES NUMERIC_ERROR
+      UC_16S_EN_16NS (
+         T_ENTIER_16S (
+            (1.0 / C_M_LSB_BH) * G_M_INFO_DERIVE_BH
+            -- (1.0/0.0625) * 37000.0 = 592,000.0  >>  32767
+            -- With SUPPRESS active, this becomes undefined hardware trap
+            -- On the 80186 processor: exception code 0x0C written to register
+            -- That code (decimal 12) was sent to the flight computer as BH data
+            -- Flight computer interpreted it as a real trajectory reading
+            -- Issued massive steering correction → rocket destroyed
+         )
+      );
+
+   Ada.Text_IO.Put_Line ("BH register = " & Integer_16'Image (P_M_DERIVE_BH));
+   Ada.Text_IO.Put_Line ("BV register = " & Integer_16'Image (P_M_DERIVE_BV));
+
+exception
+   when Constraint_Error | others =>
+      -- In the real flight, both SRI units hit this exception.
+      -- The exception handler wrote the exception code to the data bus.
+      -- The OBC (on-board computer) received it as flight attitude data.
+      -- It commanded maximum nozzle deflection. The rocket tore itself apart.
+      Ada.Text_IO.Put_Line ("NUMERIC_ERROR: BH overflow. SRI computer halting.");
+      Ada.Text_IO.Put_Line ("Exception code transmitted to OBC as sensor data.");
+      Ada.Text_IO.Put_Line ("OBC interprets as extreme attitude error.");
+      Ada.Text_IO.Put_Line ("Maximum nozzle correction commanded.");
+      Ada.Text_IO.Put_Line ("VEHICLE DESTROYED.");
+
+end Inertial_Alignment_Buggy;
+
+
+-- =============================================================================
+-- THE FIXED VERSION — protect BH the same way BV was protected
+-- =============================================================================
+
+procedure Inertial_Alignment_Fixed is
+
+   use SRI_Types;
+
+   G_M_INFO_DERIVE_BH : Float_64 := 37_000.0;   -- Ariane 5 horizontal bias
+   G_M_INFO_DERIVE_BV : Float_64 :=  9_000.0;
+
+   C_M_LSB_BH : constant Float_64 := 0.0625;
+
+   L_M_BH_32  : Float_64;
+   L_M_BV_32  : Float_64;
+
+   P_M_DERIVE_BH : Integer_16;
+   P_M_DERIVE_BV : Integer_16;
+
+begin
+
+   --   VERTICAL — already protected in original code
+   L_M_BV_32 := (1.0 / C_M_LSB_BH) * G_M_INFO_DERIVE_BV;
+   if    L_M_BV_32 > 32767.0  then P_M_DERIVE_BV := 16#7FFF#;
+   elsif L_M_BV_32 < -32768.0 then P_M_DERIVE_BV := -16#8000#;
+   else  P_M_DERIVE_BV := UC_16S_EN_16NS (T_ENTIER_16S (L_M_BV_32));
+   end if;
+
+   --   HORIZONTAL — now protected with IDENTICAL guard (the fix)
+   L_M_BH_32 := (1.0 / C_M_LSB_BH) * G_M_INFO_DERIVE_BH;
+   if    L_M_BH_32 > 32767.0  then
+      P_M_DERIVE_BH := 16#7FFF#;
+      Ada.Text_IO.Put_Line ("WARNING: BH clamped — value exceeded int16 range.");
+      Ada.Text_IO.Put_Line ("Guidance degraded but SRI remains operational.");
+   elsif L_M_BH_32 < -32768.0 then
+      P_M_DERIVE_BH := -16#8000#;
+   else
+      P_M_DERIVE_BH := UC_16S_EN_16NS (T_ENTIER_16S (L_M_BH_32));
+   end if;
+
+   Ada.Text_IO.Put_Line ("BH register = " & Integer_16'Image (P_M_DERIVE_BH));
+   Ada.Text_IO.Put_Line ("BV register = " & Integer_16'Image (P_M_DERIVE_BV));
+   Ada.Text_IO.Put_Line ("SRI operating. Flight nominal.");
+
+end Inertial_Alignment_Fixed;
+
+
+-- =============================================================================
+-- LESSON
+-- The fix was three lines of Ada — identical to the BV guard above it.
+-- The team knew overflow was possible on seven variables.
+-- They protected four. They left three unprotected for CPU budget reasons.
+-- BH was one of the three.
+-- They reasoned it could not overflow based on Ariane 4 trajectory data.
+-- They never checked whether that reasoning held for Ariane 5.
+-- It did not.
+--
+-- Ada raised the exception correctly — as designed.
+-- The team had suppressed the exception handler — also as designed.
+-- The rocket exploded — not as designed.
+--
+-- → Reused code must be re-analysed in its new context.
+-- → Suppressing safety exceptions for performance is a trade-off
+--   that must be explicitly re-evaluated when the context changes.
+-- → The assumption "this variable cannot overflow" must be proven
+--   with the actual data range of the NEW system, not the old one.
+-- =============================================================================
